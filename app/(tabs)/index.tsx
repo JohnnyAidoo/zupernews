@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, View, Image, Dimensions } from "react-native";
 import { Appbar, Button, List, Text } from "react-native-paper";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
+import { router } from "expo-router";
 
 function HomeScreen() {
   const WIDTH = Dimensions.get("window").width;
@@ -98,7 +99,11 @@ function HomeScreen() {
             <Text variant="headlineMedium" style={{ fontWeight: "bold" }}>
               Headline News
             </Text>
-            <Button mode="text" textColor={Colors.light.tint}>
+            <Button
+              mode="text"
+              textColor={Colors.light.tint}
+              onPress={() => router.replace("/(auth)/sign-up")}
+            >
               View All
             </Button>
 

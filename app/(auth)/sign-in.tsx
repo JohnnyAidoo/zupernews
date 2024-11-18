@@ -1,19 +1,47 @@
 import Colors from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import { router, Stack } from "expo-router";
+import { router } from "expo-router";
 import React from "react";
+import { useSignIn } from "@clerk/clerk-expo";
 import { Dimensions, ImageBackground, View } from "react-native";
 import { Button, Divider, Text, TextInput } from "react-native-paper";
 
 function SignInPage() {
   const HEIGHT = Dimensions.get("window").height;
   const WIDTH = Dimensions.get("window").width;
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const [emailAddress, setEmailAddress] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  const onSignInPress = React.useCallback(async () => {
+    if (!isLoaded) {
+      return;
+    }
+
+    try {
+      const signInAttempt = await signIn.create({
+        identifier: emailAddress,
+        password,
+      });
+
+      if (signInAttempt.status === "complete") {
+        await setActive({ session: signInAttempt.createdSessionId });
+        router.replace("/");
+      } else {
+        // See https://clerk.com/docs/custom-flows/error-handling
+        // for more info on error handling
+        console.error(JSON.stringify(signInAttempt, null, 2));
+      }
+    } catch (err: any) {
+      console.error(JSON.stringify(err, null, 2));
+    }
+  }, [isLoaded, emailAddress, password]);
+
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
       {/* Sign-up form */}
       <ImageBackground
-        source={require("../assets/images/splash-bg.png")}
+        source={require("../../assets/images/splash-bg.png")}
         style={{
           width: WIDTH,
           height: HEIGHT,
@@ -50,15 +78,21 @@ function SignInPage() {
               label="Username or Email"
               mode="outlined"
               outlineColor="transparent"
+              value={emailAddress}
+              onChangeText={(emailAddress) => setEmailAddress(emailAddress)}
             />
             <TextInput
               label="password"
               mode="outlined"
               outlineColor="transparent"
+              secureTextEntry={true}
+              value={password}
+              onChangeText={(password) => setPassword(password)}
             />
             <Button
               mode="contained"
               style={{ backgroundColor: Colors.light.tint, borderRadius: 10 }}
+              onPress={onSignInPress}
             >
               Sign In
             </Button>

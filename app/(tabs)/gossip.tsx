@@ -17,7 +17,7 @@ export default function Gossip() {
       <View
         style={{
           paddingHorizontal: 20,
-          marginVertical: 20,
+          paddingVertical: 20,
           backgroundColor: Colors.light.background,
         }}
       >
