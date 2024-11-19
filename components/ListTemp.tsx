@@ -11,19 +11,6 @@ function ListTemp(props: {
   source: string;
   url: string;
 }) {
-  function formatDate(isoDateString: string): string {
-    const date = new Date(isoDateString);
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: "long", // e.g., 'Monday'
-      year: "numeric",
-      month: "long", // e.g., 'October'
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    };
-    return date.toLocaleDateString("en-US", options);
-  }
-
   const openBrowser = async (url: string) => {
     try {
       await WebBrowser.openBrowserAsync(url);
@@ -66,7 +53,7 @@ function ListTemp(props: {
               variant="titleLarge"
               style={{ fontWeight: "semibold", fontSize: 14, opacity: 0.5 }}
             >
-              {formatDate(props.date)}
+              {props.date}
             </Text>
           </View>
         </View>

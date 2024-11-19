@@ -1,14 +1,66 @@
 import ListTemp from "@/components/ListTemp";
 import Colors from "@/constants/Colors";
 import { router } from "expo-router";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, ScrollView, Dimensions } from "react-native";
-import { Appbar, FAB, TextInput, Title } from "react-native-paper";
+import {
+  Appbar,
+  FAB,
+  TextInput,
+  Title,
+  ActivityIndicator,
+} from "react-native-paper";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { FIREBASE_DB } from "@/components/firbase";
+
+interface Gossip {
+  id: string;
+  title: string;
+  description: string;
+  clerkUserId: string;
+  createdAt: any;
+}
 
 export default function Gossip() {
   const WIDTH = Dimensions.get("window").width;
-  const array = [1, 21, 33, 42, 5, 65, , 7, 8, 3, 2, 4, 15];
-  const tabs = ["All", "Public", "Sports", "Entertainment", "International"];
+  const [gossips, setGossips] = useState<Gossip[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchGossips = async () => {
+    try {
+      const q = query(
+        collection(FIREBASE_DB, "gossips"),
+        orderBy("createdAt", "desc")
+      );
+      const querySnapshot = await getDocs(q);
+
+      const fetchedGossips = querySnapshot.docs.map(
+        (doc) =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          } as Gossip)
+      );
+
+      setGossips(fetchedGossips);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching gossips:", error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGossips();
+  }, []);
+
+  const filteredGossips = gossips.filter(
+    (gossip) =>
+      gossip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      gossip.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <>
       <Appbar.Header style={{ backgroundColor: Colors.light.background }}>
@@ -29,6 +81,8 @@ export default function Gossip() {
           outlineStyle={{ borderColor: Colors.light.tint }}
           outlineColor={Colors.light.tint}
           right={<TextInput.Icon icon="magnify" />}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
       </View>
 
@@ -37,18 +91,28 @@ export default function Gossip() {
           <Title style={{ fontWeight: "bold", marginBottom: 10 }}>
             Latest Gossip Stories
           </Title>
-          {array.map((i) => {
-            return (
+          {loading ? (
+            <ActivityIndicator animating={true} color={Colors.light.tint} />
+          ) : (
+            filteredGossips.map((gossip) => (
               <ListTemp
-                key={i}
+                key={gossip.id}
                 imageUrl={""}
-                title={""}
-                date={""}
-                source={""}
+                title={gossip.title}
+                date={new Intl.DateTimeFormat("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                }).format(gossip.createdAt.toDate())}
+                source={"Anonymous"}
                 url={""}
               />
-            );
-          })}
+            ))
+          )}
         </View>
       </ScrollView>
       <FAB

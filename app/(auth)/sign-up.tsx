@@ -99,6 +99,8 @@ function SignUpPage() {
             </Text>
             News
           </Text>
+          <Text variant="labelLarge">Create New Account</Text>
+
           <TextInput
             label="Email"
             mode="outlined"

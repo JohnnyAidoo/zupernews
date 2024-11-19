@@ -3,13 +3,30 @@ import ListTemp from "@/components/ListTemp";
 import Colors from "@/constants/Colors";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { ScrollView, View, Image, Dimensions } from "react-native";
+import { ScrollView, View, Image, Dimensions, Alert } from "react-native";
 import { Appbar, Button, List, Text } from "react-native-paper";
-import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
-import { router } from "expo-router";
+import {
+  ClerkProvider,
+  ClerkLoaded,
+  useClerk,
+  useUser,
+} from "@clerk/clerk-expo";
+import { router, useRouter } from "expo-router";
 
 function HomeScreen() {
   const WIDTH = Dimensions.get("window").width;
+  const { isLoaded, isSignedIn } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.replace("/sign-up");
+    }
+  }, [isLoaded, isSignedIn]);
+
+  if (!isLoaded) {
+    return null; // Or a loading indicator
+  }
 
   type newsType = {
     source: {
@@ -26,6 +43,7 @@ function HomeScreen() {
   };
   const [newsFeed, setNewsFeed] = useState<newsType[]>([]);
   const [newsHeadlineNewsFeed, setHeadLineNewsFeed] = useState<newsType[]>([]);
+  const { signOut } = useClerk();
 
   const fetchBreakingNews = () => {
     axios
@@ -49,6 +67,40 @@ function HomeScreen() {
     fetchBreakingNews();
     fetchHeadlineNews();
   }, []);
+
+  const handleSignOut = () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Sign Out",
+          style: "destructive",
+          onPress: async () => {
+            await signOut();
+            router.replace("/sign-up");
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+  function formatDate(isoDateString: string): string {
+    const date = new Date(isoDateString);
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "long", // e.g., 'Monday'
+      year: "numeric",
+      month: "long", // e.g., 'October'
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+    return date.toLocaleDateString("en-US", options);
+  }
   return (
     <>
       <ScrollView
@@ -83,6 +135,8 @@ function HomeScreen() {
               News
             </Text>
           </View>
+
+          <Appbar.Action icon={"power"} onPress={handleSignOut} />
         </Appbar.Header>
         <View
           style={{
@@ -102,7 +156,7 @@ function HomeScreen() {
             <Button
               mode="text"
               textColor={Colors.light.tint}
-              onPress={() => router.replace("/(auth)/sign-up")}
+              onPress={() => router.replace("/(auth)/sign-in")}
             >
               View All
             </Button>
@@ -144,7 +198,7 @@ function HomeScreen() {
               key={news.url}
               source={news.author}
               title={news.title}
-              date={news.publishedAt}
+              date={formatDate(news.publishedAt)}
               imageUrl={news.urlToImage as string}
               url={news.url}
             />

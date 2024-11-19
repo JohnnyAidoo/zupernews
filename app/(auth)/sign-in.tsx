@@ -5,6 +5,7 @@ import React from "react";
 import { useSignIn } from "@clerk/clerk-expo";
 import { Dimensions, ImageBackground, View } from "react-native";
 import { Button, Divider, Text, TextInput } from "react-native-paper";
+import { GoogleSignInButton } from "@/components/googleAuthButton";
 
 function SignInPage() {
   const HEIGHT = Dimensions.get("window").height;
@@ -74,6 +75,7 @@ function SignInPage() {
               </Text>
               News
             </Text>
+            <Text variant="labelLarge">Sign In To Your Account</Text>
             <TextInput
               label="Username or Email"
               mode="outlined"
@@ -124,8 +126,7 @@ function SignInPage() {
               style={{ backgroundColor: Colors.light.text, width: WIDTH / 3 }}
             />
           </View>
-          <Ionicons name="logo-google" size={25} />
-
+          <GoogleSignInButton />
           <Button
             onPress={() => {
               router.navigate("/sign-up");
