@@ -17,6 +17,7 @@ interface Gossip {
   id: string;
   title: string;
   description: string;
+  username: string;
   clerkUserId: string;
   createdAt: any;
 }
@@ -26,6 +27,7 @@ export default function Gossip() {
   const [gossips, setGossips] = useState<Gossip[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
   const fetchGossips = async () => {
     try {
@@ -55,10 +57,16 @@ export default function Gossip() {
     fetchGossips();
   }, []);
 
+  // Debounce effect
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedQuery(searchQuery), 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const filteredGossips = gossips.filter(
     (gossip) =>
-      gossip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      gossip.description.toLowerCase().includes(searchQuery.toLowerCase())
+      gossip.title.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+      gossip.description.toLowerCase().includes(debouncedQuery.toLowerCase())
   );
 
   return (
@@ -75,7 +83,7 @@ export default function Gossip() {
       >
         <TextInput
           mode="outlined"
-          label="search"
+          label="Search"
           textColor="black"
           placeholder="Type something"
           outlineStyle={{ borderColor: Colors.light.tint }}
@@ -93,11 +101,14 @@ export default function Gossip() {
           </Title>
           {loading ? (
             <ActivityIndicator animating={true} color={Colors.light.tint} />
+          ) : !filteredGossips.length ? (
+            <Title style={{ textAlign: "center", marginTop: 20 }}>
+              No gossips found
+            </Title>
           ) : (
             filteredGossips.map((gossip) => (
               <ListTemp
                 key={gossip.id}
-                imageUrl={""}
                 title={gossip.title}
                 date={new Intl.DateTimeFormat("en-US", {
                   weekday: "long",
@@ -108,7 +119,7 @@ export default function Gossip() {
                   minute: "2-digit",
                   hour12: true,
                 }).format(gossip.createdAt.toDate())}
-                source={"Anonymous"}
+                source={gossip.username || "anonymous"}
                 url={""}
               />
             ))

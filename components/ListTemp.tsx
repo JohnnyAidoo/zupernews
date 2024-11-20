@@ -1,11 +1,10 @@
-import { Link } from "expo-router";
 import React from "react";
 import { View, Image, TouchableOpacity } from "react-native";
 import { Text } from "react-native-paper";
 import * as WebBrowser from "expo-web-browser";
 
 function ListTemp(props: {
-  imageUrl: string;
+  imageUrl?: string;
   title: string;
   date: string;
   source: string;
@@ -22,14 +21,16 @@ function ListTemp(props: {
     <>
       <TouchableOpacity onPress={() => openBrowser(props.url)}>
         <View style={{ flexDirection: "row", marginVertical: 10 }}>
-          <Image
-            source={{
-              uri: props.imageUrl,
-            }}
-            width={100}
-            height={100}
-            style={{ borderRadius: 10 }}
-          />
+          {props.imageUrl && (
+            <Image
+              source={{
+                uri: props.imageUrl,
+              }}
+              width={100}
+              height={100}
+              style={{ borderRadius: 10 }}
+            />
+          )}
           <View style={{ marginHorizontal: 10 }}>
             <Text
               style={{

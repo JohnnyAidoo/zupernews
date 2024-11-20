@@ -1,9 +1,9 @@
 import React from "react";
-import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useOAuth } from "@clerk/clerk-expo";
 import * as WebBrowser from "expo-web-browser";
 import { router } from "expo-router";
+import { Pressable } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -11,6 +11,8 @@ export const GoogleSignInButton = () => {
   const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
 
   const onPress = React.useCallback(async () => {
+    console.log("pressed");
+
     try {
       const { createdSessionId, setActive } = await startOAuthFlow({
         redirectUrl: "exp://localhost:19000/--/sign-in",
@@ -26,8 +28,8 @@ export const GoogleSignInButton = () => {
   }, []);
 
   return (
-    <TouchableOpacity onPress={onPress}>
+    <Pressable onPress={onPress}>
       <Ionicons name="logo-google" size={25} />
-    </TouchableOpacity>
+    </Pressable>
   );
 };

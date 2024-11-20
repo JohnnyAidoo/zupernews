@@ -5,11 +5,13 @@ import React from "react";
 import { useSignUp } from "@clerk/clerk-expo";
 import { Dimensions, ImageBackground, View, Alert } from "react-native";
 import { Button, Divider, Surface, Text, TextInput } from "react-native-paper";
+import { GoogleSignInButton } from "@/components/googleAuthButton";
 
 function SignUpPage() {
   const HEIGHT = Dimensions.get("window").height;
   const WIDTH = Dimensions.get("window").width;
   const { isLoaded, signUp, setActive } = useSignUp();
+  const [name, setName] = React.useState("");
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [pendingVerification, setPendingVerification] = React.useState(false);
@@ -24,6 +26,7 @@ function SignUpPage() {
       await signUp.create({
         emailAddress,
         password,
+        username: name,
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
@@ -35,8 +38,6 @@ function SignUpPage() {
           { text: "OK", onPress: () => console.log("OK Pressed") },
         ]);
       }
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
       console.error(JSON.stringify(err.errors[0], null, 2));
     }
   };
@@ -58,8 +59,6 @@ function SignUpPage() {
         console.error(JSON.stringify(completeSignUp, null, 2));
       }
     } catch (err: any) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
       console.error(JSON.stringify(err, null, 2));
     }
   };
@@ -67,7 +66,6 @@ function SignUpPage() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      {/* Sign-up form */}
       <ImageBackground
         source={require("../../assets/images/splash-bg.png")}
         style={{
@@ -102,6 +100,15 @@ function SignUpPage() {
           <Text variant="labelLarge">Create New Account</Text>
 
           <TextInput
+            label="Name"
+            mode="outlined"
+            outlineColor="transparent"
+            autoCapitalize="words"
+            value={name}
+            placeholder="Name..."
+            onChangeText={(name) => setName(name)}
+          />
+          <TextInput
             label="Email"
             mode="outlined"
             outlineColor="transparent"
@@ -111,7 +118,7 @@ function SignUpPage() {
             onChangeText={(email) => setEmailAddress(email)}
           />
           <TextInput
-            label="password"
+            label="Password"
             mode="outlined"
             outlineColor="transparent"
             value={password}
@@ -124,17 +131,9 @@ function SignUpPage() {
             onPress={onSignUpPress}
             style={{ backgroundColor: Colors.light.tint, borderRadius: 10 }}
           >
-            Sign In
+            Sign Up
           </Button>
-          {/* <Button
-            mode="text"
-            textColor={Colors.light.text}
-            style={{ paddingTop: 20 }}
-          >
-            Forgot Password ?
-          </Button> */}
         </View>
-        {/*  */}
         <View
           style={{
             flexDirection: "row",
@@ -154,8 +153,7 @@ function SignUpPage() {
             style={{ backgroundColor: Colors.light.text, width: WIDTH / 3 }}
           />
         </View>
-        <Ionicons name="logo-google" size={25} />
-
+        <GoogleSignInButton />
         <Button
           onPress={() => {
             router.navigate("/sign-in");

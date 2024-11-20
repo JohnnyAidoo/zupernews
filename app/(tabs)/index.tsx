@@ -126,7 +126,7 @@ function HomeScreen() {
               variant="headlineLarge"
               style={{ fontWeight: "bold", color: Colors.light.tint }}
             >
-              Super
+              Zuper
             </Text>
             <Text
               variant="headlineLarge"
@@ -153,11 +153,7 @@ function HomeScreen() {
             <Text variant="headlineMedium" style={{ fontWeight: "bold" }}>
               Headline News
             </Text>
-            <Button
-              mode="text"
-              textColor={Colors.light.tint}
-              onPress={() => router.replace("/(auth)/sign-in")}
-            >
+            <Button mode="text" textColor={Colors.light.tint}>
               View All
             </Button>
 
